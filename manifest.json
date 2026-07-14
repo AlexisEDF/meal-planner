@@ -1,0 +1,20 @@
+{
+    "name": "MealPlanner",
+    "short_name": "MealPlanner",
+    "icons": [
+      {
+        "src": "logo192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "logo512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "./index.html",
+    "display": "standalone",
+    "theme_color": "#FAF6EC",
+    "background_color": "#FAF6EC"
+  }
