@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mon Menu de la Semaine</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --paper: #FAF6EC;
+      --ink: #1C2B22;
+      --ink-soft: #5A6B5F;
+      --line: #DAD3C0;
+      --mustard: #C98A1F;
+      --mustard-deep: #9C6B14;
+      --sage: #5B7A62;
+      --sage-pale: #E7EEE4;
+      --card: #FFFDF7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Work Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      min-height: 100vh;
+      padding: 28px 20px 60px;
+    }
+
+    /* --- HEADER --- */
+    .header {
+      max-width: 1200px;
+      margin: 0 auto 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .header h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 34px;
+      font-weight: 600;
+      margin: 0 0 4px;
+      letter-spacing: -0.01em;
+    }
+    .header p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+    
+    .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    
+    .nav-list-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--sage); border: 1px solid var(--sage); color: #fff;
+      padding: 8px 16px; border-radius: 20px; font-size: 13.5px; font-weight: 500;
+      font-family: 'Work Sans', sans-serif; cursor: pointer; transition: all 0.15s ease;
+    }
+    .nav-list-btn:hover { background: #4A6650; }
+    
+    .reset-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid var(--line); color: var(--ink-soft);
+      padding: 8px 14px; border-radius: 20px; font-size: 13px; font-family: 'Work Sans', sans-serif;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .reset-btn:hover { border-color: var(--mustard); color: var(--mustard-deep); }
+    .reset-btn.confirm { background: #FDECEC; border-color: #E0A0A0; color: #B03A3A; }
+
+    /* --- LAYOUT GRILLE --- */
+    .layout { max-width: 1200px; margin: 0 auto; display: block; }
+    
+    .grid-wrap {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 16px; padding: 18px; overflow-x: auto;
+    }
+    .grid { display: grid; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 10px; min-width: 860px; }
+    
+    .day-col-header {
+      font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; text-align: center;
+      padding-bottom: 8px; border-bottom: 2px solid var(--sage-pale); margin-bottom: 4px;
+    }
+    .day-col { display: flex; flex-direction: column; gap: 8px; }
+
+    .cell {
+      font-family: 'Work Sans', sans-serif; border: 1px dashed var(--line); background: var(--paper);
+      border-radius: 10px; padding: 10px 10px; min-height: 74px;
+      display: flex; flex-direction: column; gap: 4px; text-align: left;
+      cursor: pointer; transition: border-color 0.15s ease, transform 0.1s ease;
+    }
+    .cell:hover { border-color: var(--mustard); transform: translateY(-1px); }
+    .cell--filled { border-style: solid; background: var(--sage-pale); border-color: var(--sage-pale); }
+    
+    .cell__slot { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); font-weight: 600; }
+    .cell__dish { font-size: 13.5px; font-weight: 600; line-height: 1.25; }
+    .cell__count { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--sage); display: flex; align-items: center; gap: 4px; }
+    .cell__empty { margin-top: auto; font-size: 11.5px; color: var(--ink-soft); display: flex; align-items: center; gap: 4px; }
+
+    /* --- MOBILE TABS --- */
+    .mobile-only { display: none; }
+    .mobile-tabs { gap: 6px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 4px; }
+    .mobile-tabs button {
+      font-family: 'Work Sans', sans-serif; font-size: 12.5px; font-weight: 500;
+      padding: 7px 12px; border-radius: 20px; border: 1px solid var(--line);
+      background: var(--card); color: var(--ink-soft); white-space: nowrap; cursor: pointer;
+    }
+    .mobile-tabs button.active { background: var(--mustard); border-color: var(--mustard); color: #fff; }
+    .mobile-grid { display: flex; flex-direction: column; gap: 10px; }
+
+    /* --- MODALS --- */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(28,43,34,0.35);
+      display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+    }
+    .overlay.active { display: flex; }
+    
+    .modal {
+      background: var(--card); border-radius: 16px; padding: 24px;
+      width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .modal-head h3 { font-family: 'Fraunces', serif; font-size: 18px; margin: 0; display: flex; align-items: center; gap: 8px;}
+    .modal-head button { background: none; border: none; cursor: pointer; color: var(--ink-soft); padding: 4px; }
+    
+    /* MODAL : Editeur */
+    .modal label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); font-weight: 600; display: block; margin-bottom: 6px; }
+    .modal input[type="text"], .modal textarea {
+      width: 100%; font-family: 'Work Sans', sans-serif; font-size: 14px;
+      border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+      background: var(--paper); color: var(--ink); margin-bottom: 14px; resize: vertical;
+    }
+    .modal textarea { min-height: 110px; line-height: 1.5; }
+    .modal-hint { font-size: 11px; color: var(--ink-soft); margin: -8px 0 10px; }
+    
+    .ingredient-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+    .ingredient-row { display: flex; gap: 6px; align-items: center; }
+    .ingredient-row input { margin-bottom: 0 !important; }
+    .ingredient-name { flex: 1.4; min-width: 0; }
+    .ingredient-qty { flex: 1; min-width: 0; }
+    .ingredient-remove { flex-shrink: 0; background: none; border: none; color: var(--ink-soft); cursor: pointer; padding: 6px; display: flex; }
+    .ingredient-remove:hover { color: #B03A3A; }
+    
+    .add-row-btn {
+      display: flex; align-items: center; gap: 6px; background: none; border: 1px dashed var(--line);
+      color: var(--sage); font-family: 'Work Sans', sans-serif; font-size: 12.5px; font-weight: 500;
+      padding: 8px 12px; border-radius: 8px; cursor: pointer; width: 100%; justify-content: center; margin-bottom: 16px;
+    }
+    .add-row-btn:hover { border-color: var(--sage); background: var(--sage-pale); }
+    
+    .modal-actions { display: flex; gap: 10px; justify-content: space-between; margin-top: 18px; }
+    .btn { font-family: 'Work Sans', sans-serif; font-size: 13.5px; font-weight: 500; padding: 9px 16px; border-radius: 10px; border: none; cursor: pointer; }
+    .btn-primary { background: var(--mustard); color: #fff; }
+    .btn-primary:hover { background: var(--mustard-deep); }
+    .btn-ghost { background: transparent; color: var(--ink-soft); display: flex; align-items: center; gap: 5px; }
+    .btn-ghost:hover { color: #B03A3A; }
+
+    /* MODAL : Liste de courses (Receipt style) */
+    .receipt-modal {
+      background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 24px 20px;
+      width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); position: relative;
+    }
+    .receipt-edge {
+      height: 12px; margin: 20px -20px -24px;
+      background-image: linear-gradient(135deg, transparent 50%, var(--paper) 50%), linear-gradient(-135deg, transparent 50%, var(--paper) 50%);
+      background-size: 14px 14px; background-position: bottom; background-repeat: repeat-x;
+    }
+    .clear-list-btn {
+      display: flex; align-items: center; gap: 5px; background: transparent; border: 1px solid var(--line);
+      color: var(--ink-soft); padding: 5px 10px; border-radius: 16px; font-size: 11px; font-family: 'Work Sans', sans-serif; cursor: pointer; white-space: nowrap;
+    }
+    .clear-list-btn:hover { border-color: #B03A3A; color: #B03A3A; }
+    .clear-list-btn.confirm { background: #FDECEC; border-color: #E0A0A0; color: #B03A3A; }
+    
+    .receipt-sub { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft); margin: 0; }
+    .receipt-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; max-height: 42vh; overflow-y: auto; }
+    .receipt-item { display: flex; align-items: center; gap: 9px; padding: 7px 2px; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; border-bottom: 1px dotted var(--line); cursor: pointer; }
+    .receipt-item input { accent-color: var(--sage); width: 15px; height: 15px; flex-shrink: 0; }
+    .receipt-item span.label { flex: 1; text-transform: lowercase; }
+    .receipt-item.done span.label { text-decoration: line-through; color: var(--ink-soft); }
+    .receipt-item .qty { color: var(--mustard-deep); font-weight: 600; }
+    .receipt-empty { font-size: 12.5px; color: var(--ink-soft); padding: 30px 2px; text-align: center; }
+
+    @media (max-width: 880px) {
+      .grid-wrap { display: none; }
+      .mobile-only { display: block; }
+      .mobile-tabs { display: flex; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <div class="header">
+      <div>
+        <h1>Mon menu de la semaine</h1>
+        <p>Clique sur un créneau pour ajouter un plat — ta liste de courses se génère toute seule.</p>
+      </div>
+      <div class="header-actions">
+        <button class="nav-list-btn" onclick="openShoppingList()">
+          <i data-lucide="shopping-cart" style="width:14px; height:14px;"></i>
+          Liste courses (<span id="shopping-badge">0</span>)
+        </button>
+        <button class="reset-btn" id="btn-reset" onclick="handleReset()">
+          <i data-lucide="rotate-ccw" style="width:13px; height:13px;"></i>
+          <span id="txt-reset">Tout effacer</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="grid-wrap">
+        <div class="grid" id="desktop-grid"></div>
+      </div>
+
+      <div class="mobile-only">
+        <div class="mobile-tabs" id="mobile-tabs"></div>
+        <div class="mobile-grid" id="mobile-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay-shopping" onclick="closeModals()">
+    <div class="receipt-modal" onclick="event.stopPropagation()">
+      <div class="modal-head" style="margin-bottom: 12px;">
+        <h3><i data-lucide="shopping-cart" style="width:18px; height:18px;"></i> Liste de courses</h3>
+        <button onclick="closeModals()"><i data-lucide="x" style="width:18px; height:18px;"></i></button>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <p class="receipt-sub" id="shopping-stats">aucun article pour l'instant</p>
+        <button class="clear-list-btn" id="btn-clear-list" style="display:none;" onclick="handleClearList()">
+          <i data-lucide="trash-2" style="width:12px; height:12px; margin-right: 3px;"></i>
+          <span id="txt-clear-list">Vider</span>
+        </button>
+      </div>
+      <div style="border-bottom: 1px dashed var(--line); margin-bottom: 14px;"></div>
+      
+      <div id="shopping-content"></div>
+      
+      <div class="receipt-edge"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay-editor" onclick="closeModals()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <h3 id="editor-title">Jour · Créneau</h3>
+        <button onclick="closeModals()"><i data-lucide="x" style="width:18px; height:18px;"></i></button>
+      </div>
+      
+      <label>Plat</label>
+      <input type="text" id="editor-dish" placeholder="ex. Poulet rôti aux légumes" autofocus>
+      
+      <label>Ingrédients</label>
+      <div class="modal-hint">La quantité est facultative</div>
+      <div class="ingredient-rows" id="editor-ingredients"></div>
+      
+      <button type="button" class="add-row-btn" onclick="addIngredientRow()">
+        <i data-lucide="plus" style="width:13px; height:13px;"></i> Ajouter un ingrédient
+      </button>
+
+      <label style="margin-top: 12px;">Conseils de préparation</label>
+      <div class="modal-hint">Facultatif — comment tu fais ce plat</div>
+      <textarea id="editor-notes" placeholder="ex. Faire revenir l'oignon 5 min&#10;Ajouter le riz et couvrir d'eau&#10;Cuire 18 min à couvert"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="clearCurrentCell()">
+          <i data-lucide="trash-2" style="width:14px; height:14px;"></i> Vider
+        </button>
+        <button class="btn btn-primary" onclick="saveEditor()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- DONNÉES & LOGIQUE DE BASE ---
+    const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+    const SLOTS = [
+      { key: "matin", label: "Matin" },
+      { key: "midi", label: "Midi" },
+      { key: "gouter", label: "Goûter" },
+      { key: "soir", label: "Soir" },
+    ];
+
+    function cellKey(day, slot) { return `${day}__${slot}`; }
+
+    function emptyPlan() {
+      const plan = {};
+      DAYS.forEach(d => {
+        SLOTS.forEach(s => { plan[cellKey(d, s.key)] = { dish: "", ingredients: [], notes: "" }; });
+      });
+      return plan;
+    }
+
+    function parseQty(qty) {
+      if (!qty) return null;
+      const m = qty.trim().match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);
+      if (!m) return null;
+      const value = parseFloat(m[1].replace(",", "."));
+      if (Number.isNaN(value)) return null;
+      return { value, unit: m[2].trim().toLowerCase() };
+    }
+
+    function formatNumber(n) { return Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100); }
+
+    function combineQuantities(qtyList) {
+      const present = qtyList.filter(Boolean);
+      const noQtyCount = qtyList.length - present.length;
+      if (present.length === 0) return qtyList.length > 1 ? `×${qtyList.length}` : null;
+      
+      const parsed = present.map(parseQty);
+      const allParsed = parsed.every(Boolean);
+      const units = new Set(parsed.map(p => (p ? p.unit : null)));
+      
+      let base;
+      if (allParsed && units.size === 1) {
+        const sum = parsed.reduce((a, p) => a + p.value, 0);
+        const unit = parsed[0].unit;
+        base = unit ? `${formatNumber(sum)} ${unit}` : formatNumber(sum);
+      } else {
+        base = present.join(" + ");
+      }
+      return noQtyCount > 0 ? `${base} (+${noQtyCount})` : base;
+    }
+
+    // --- ETAT GLOBAL (STATE) ---
+    let plan = emptyPlan();
+    let checked = {};
+    let mobileDay = DAYS[0];
+    let editing = null; // { day, slotKey }
+    
+    // Variables pour les confirmations
+    let confirmResetTimeout = null;
+    let confirmClearListTimeout = null;
+
+    // --- SAUVEGARDE & CHARGEMENT ---
+    function loadData() {
+      const saved = localStorage.getItem("meal-planner-data");
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data.plan) plan = { ...emptyPlan(), ...data.plan };
+          if (data.checked) checked = data.checked;
+        } catch(e) {}
+      }
+      renderAll();
+    }
+
+    function saveData() {
+      localStorage.setItem("meal-planner-data", JSON.stringify({ plan, checked }));
+      renderAll();
+    }
+
+    // --- MOTEUR DE RENDU (UI) ---
+    function renderAll() {
+      renderGridDesktop();
+      renderMobileTabs();
+      renderGridMobile();
+      updateShoppingListState();
+      lucide.createIcons();
+    }
+
+    function generateCellHTML(day, slot) {
+      const cell = plan[cellKey(day, slot.key)];
+      const hasDish = cell.dish || cell.ingredients.length > 0;
+      
+      if (hasDish) {
+        const notesIcon = cell.notes ? `<i data-lucide="notebook-pen" style="width:11px; height:11px; margin-left: 5px; vertical-align: -1px;"></i>` : "";
+        const ingText = `ingrédient${cell.ingredients.length > 1 ? 's' : ''}`;
+        return `
+          <button class="cell cell--filled" onclick="openEditor('${day}', '${slot.key}')">
+            <span class="cell__slot">${slot.label}</span>
+            <span class="cell__dish">${cell.dish || "Sans nom"}</span>
+            <span class="cell__count">${cell.ingredients.length} ${ingText} ${notesIcon}</span>
+          </button>
+        `;
+      } else {
+        return `
+          <button class="cell" onclick="openEditor('${day}', '${slot.key}')">
+            <span class="cell__slot">${slot.label}</span>
+            <span class="cell__empty"><i data-lucide="plus" style="width:14px; height:14px;"></i> ajouter</span>
+          </button>
+        `;
+      }
+    }
+
+    function renderGridDesktop() {
+      const container = document.getElementById('desktop-grid');
+      let html = '';
+      DAYS.forEach(day => {
+        html += `<div class="day-col"><div class="day-col-header">${day}</div>`;
+        SLOTS.forEach(slot => { html += generateCellHTML(day, slot); });
+        html += `</div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderMobileTabs() {
+      const container = document.getElementById('mobile-tabs');
+      let html = '';
+      DAYS.forEach(day => {
+        const active = day === mobileDay ? 'active' : '';
+        html += `<button class="${active}" onclick="setMobileDay('${day}')">${day.substring(0,3)}</button>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderGridMobile() {
+      const container = document.getElementById('mobile-grid');
+      let html = '';
+      SLOTS.forEach(slot => { html += generateCellHTML(mobileDay, slot); });
+      container.innerHTML = html;
+    }
+
+    function setMobileDay(day) {
+      mobileDay = day;
+      renderMobileTabs();
+      renderGridMobile();
+      lucide.createIcons();
+    }
+
+    // --- LISTE DE COURSES ---
+    function getShoppingListData() {
+      const map = new Map();
+      Object.values(plan).forEach(({ ingredients }) => {
+        ingredients.forEach(({ name, qty }) => {
+          const key = name.toLowerCase().trim();
+          if (!key) return;
+          if (map.has(key)) {
+            map.get(key).qtys.push(qty || "");
+          } else {
+            map.set(key, { label: name.trim(), qtys: [qty || ""] });
+          }
+        });
+      });
+      return Array.from(map.entries())
+        .map(([key, val]) => ({
+          key,
+          label: val.label,
+          count: val.qtys.length,
+          displayQty: combineQuantities(val.qtys),
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label, "fr"));
+    }
+
+    function updateShoppingListState() {
+      const list = getShoppingListData();
+      const boughtCount = list.filter(i => checked[i.key]).length;
+      
+      // Update badge in header
+      document.getElementById('shopping-badge').innerText = list.length;
+      
+      // Update modal stats
+      const statsEl = document.getElementById('shopping-stats');
+      const btnClear = document.getElementById('btn-clear-list');
+      
+      if (list.length === 0) {
+        statsEl.innerText = "aucun article pour l'instant";
+        btnClear.style.display = "none";
+      } else {
+        const totalLines = list.reduce((a, i) => a + i.count, 0);
+        statsEl.innerText = `${boughtCount}/${list.length} pris — total ${totalLines} lignes`;
+        btnClear.style.display = "flex";
+      }
+
+      // Update modal content
+      const contentEl = document.getElementById('shopping-content');
+      if (list.length === 0) {
+        contentEl.innerHTML = `
+          <div class="receipt-empty">
+            <i data-lucide="utensils" style="width:18px; height:18px; margin-bottom:6px; opacity:0.5;"></i><br>
+            Ajoute des ingrédients à tes repas pour remplir la liste.
+          </div>
+        `;
+      } else {
+        let html = '<ul class="receipt-list">';
+        list.forEach(item => {
+          const isDone = checked[item.key] ? 'done' : '';
+          const checkAttr = checked[item.key] ? 'checked' : '';
+          const qtyHtml = item.displayQty ? `<span class="qty">${item.displayQty}</span>` : '';
+          html += `
+            <li class="receipt-item ${isDone}" onclick="toggleCheck('${item.key}')">
+              <input type="checkbox" ${checkAttr} onclick="event.stopPropagation(); toggleCheck('${item.key}')">
+              <span class="label">${item.label}</span>
+              ${qtyHtml}
+            </li>
+          `;
+        });
+        html += '</ul>';
+        contentEl.innerHTML = html;
+      }
+    }
+
+    function toggleCheck(key) {
+      checked[key] = !checked[key];
+      saveData(); // triggers renderAll
+    }
+
+    function openShoppingList() {
+      document.getElementById('overlay-shopping').classList.add('active');
+    }
+
+    // --- EDITEUR (MODAL) ---
+    function openEditor(day, slotKey) {
+      editing = { day, slotKey };
+      const cell = plan[cellKey(day, slotKey)];
+      const slotLabel = SLOTS.find(s => s.key === slotKey).label;
+      
+      document.getElementById('editor-title').innerHTML = `${day} · ${slotLabel}`;
+      document.getElementById('editor-dish').value = cell.dish || '';
+      document.getElementById('editor-notes').value = cell.notes || '';
+      
+      const container = document.getElementById('editor-ingredients');
+      container.innerHTML = '';
+      
+      if (cell.ingredients.length === 0) {
+        addIngredientRowToDOM('', '');
+      } else {
+        cell.ingredients.forEach(ing => addIngredientRowToDOM(ing.name, ing.qty));
+      }
+
+      document.getElementById('overlay-editor').classList.add('active');
+      lucide.createIcons();
+    }
+
+    function addIngredientRowToDOM(nameVal, qtyVal) {
+      const container = document.getElementById('editor-ingredients');
+      const row = document.createElement('div');
+      row.className = 'ingredient-row';
+      row.innerHTML = `
+        <input type="text" class="ingredient-name" placeholder="ex. farine" value="${nameVal}">
+        <input type="text" class="ingredient-qty" placeholder="200g (optionnel)" value="${qtyVal}">
+        <button type="button" class="ingredient-remove" onclick="this.parentElement.remove()" title="Retirer">
+          <i data-lucide="x" style="width:14px; height:14px;"></i>
+        </button>
+      `;
+      container.appendChild(row);
+      lucide.createIcons();
+    }
+
+    function addIngredientRow() {
+      addIngredientRowToDOM('', '');
+    }
+
+    function saveEditor() {
+      if (!editing) return;
+      const dish = document.getElementById('editor-dish').value.trim();
+      const notes = document.getElementById('editor-notes').value.trim();
+      
+      const ingredients = [];
+      const rows = document.querySelectorAll('#editor-ingredients .ingredient-row');
+      rows.forEach(row => {
+        const name = row.querySelector('.ingredient-name').value.trim();
+        const qty = row.querySelector('.ingredient-qty').value.trim();
+        if (name) ingredients.push({ name, qty });
+      });
+
+      plan[cellKey(editing.day, editing.slotKey)] = { dish, ingredients, notes };
+      saveData();
+      closeModals();
+    }
+
+    function clearCurrentCell() {
+      if (!editing) return;
+      plan[cellKey(editing.day, editing.slotKey)] = { dish: "", ingredients: [], notes: "" };
+      saveData();
+      closeModals();
+    }
+
+    function closeModals() {
+      document.getElementById('overlay-editor').classList.remove('active');
+      document.getElementById('overlay-shopping').classList.remove('active');
+      editing = null;
+    }
+
+    // --- ACTIONS GLOABLES (RESET / CLEAR) ---
+    function handleReset() {
+      const btn = document.getElementById('btn-reset');
+      const txt = document.getElementById('txt-reset');
+      
+      if (btn.classList.contains('confirm')) {
+        plan = emptyPlan();
+        checked = {};
+        saveData();
+        btn.classList.remove('confirm');
+        txt.innerText = "Tout effacer";
+        clearTimeout(confirmResetTimeout);
+      } else {
+        btn.classList.add('confirm');
+        txt.innerText = "Confirmer réinitialisation";
+        confirmResetTimeout = setTimeout(() => {
+          btn.classList.remove('confirm');
+          txt.innerText = "Tout effacer";
+        }, 3000);
+      }
+    }
+
+    function handleClearList() {
+      const btn = document.getElementById('btn-clear-list');
+      const txt = document.getElementById('txt-clear-list');
+      
+      if (btn.classList.contains('confirm')) {
+        // Vider la liste = retirer les ingrédients, garder les plats
+        Object.keys(plan).forEach(key => {
+          plan[key].ingredients = [];
+        });
+        checked = {};
+        saveData();
+        btn.classList.remove('confirm');
+        txt.innerText = "Vider";
+        clearTimeout(confirmClearListTimeout);
+      } else {
+        btn.classList.add('confirm');
+        txt.innerText = "Confirmer";
+        confirmClearListTimeout = setTimeout(() => {
+          btn.classList.remove('confirm');
+          txt.innerText = "Vider";
+        }, 3000);
+      }
+    }
+
+    // --- DÉMARRAGE ---
+    loadData();
+
+  </script>
+</body>
+</html>
