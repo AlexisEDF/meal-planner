@@ -202,16 +202,16 @@
     <div class="header">
       <div>
         <h1>Mon menu de la semaine</h1>
-        <p>Clique sur un créneau pour ajouter un plat — ta liste de courses se génère toute seule.</p>
+        <p>MealPlanner.</p>
       </div>
       <div class="header-actions">
         <button class="nav-list-btn" onclick="openShoppingList()">
           <i data-lucide="shopping-cart" style="width:14px; height:14px;"></i>
-          Liste courses (<span id="shopping-badge">0</span>)
+          Liste de courses (<span id="shopping-badge">0</span>)
         </button>
         <button class="reset-btn" id="btn-reset" onclick="handleReset()">
           <i data-lucide="rotate-ccw" style="width:13px; height:13px;"></i>
-          <span id="txt-reset">Tout effacer</span>
+          <span id="txt-reset">Effacer le menu</span>
         </button>
       </div>
     </div>
@@ -258,7 +258,7 @@
       </div>
       
       <label>Plat</label>
-      <input type="text" id="editor-dish" placeholder="ex. Poulet rôti aux légumes" autofocus>
+      <input type="text" id="editor-dish" placeholder="..." autofocus>
       
       <label>Ingrédients</label>
       <div class="modal-hint">La quantité est facultative</div>
@@ -269,8 +269,8 @@
       </button>
 
       <label style="margin-top: 12px;">Conseils de préparation</label>
-      <div class="modal-hint">Facultatif — comment tu fais ce plat</div>
-      <textarea id="editor-notes" placeholder="ex. Faire revenir l'oignon 5 min&#10;Ajouter le riz et couvrir d'eau&#10;Cuire 18 min à couvert"></textarea>
+      <div class="modal-hint">Facultatif</div>
+      <textarea id="editor-notes" placeholder="..."></textarea>
 
       <div class="modal-actions">
         <button class="btn btn-ghost" onclick="clearCurrentCell()">
@@ -537,8 +537,8 @@
       const row = document.createElement('div');
       row.className = 'ingredient-row';
       row.innerHTML = `
-        <input type="text" class="ingredient-name" placeholder="ex. farine" value="${nameVal}">
-        <input type="text" class="ingredient-qty" placeholder="200g (optionnel)" value="${qtyVal}">
+        <input type="text" class="ingredient-name" placeholder="..." value="${nameVal}">
+        <input type="text" class="ingredient-qty" placeholder="qte (optionnel)" value="${qtyVal}">
         <button type="button" class="ingredient-remove" onclick="this.parentElement.remove()" title="Retirer">
           <i data-lucide="x" style="width:14px; height:14px;"></i>
         </button>
